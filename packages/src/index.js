@@ -24,7 +24,6 @@ class Router {
   }
 
   push(location) {
-    console.log('pushhhh')
     this.history.push(location)
   }
   
