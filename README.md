@@ -15,4 +15,4 @@ http://www.baidu.com/#/login
 ![canvas](./assets/history.png)<br/>
 
 ### 参考
-[参考文章](https://github.com/muwoo/blogs/issues/22)
+[前端路由简介以及vue-router实现原理 ](https://github.com/muwoo/blogs/issues/22)
