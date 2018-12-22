@@ -6,7 +6,7 @@ export class HashHistory extends Base {
     super(router)  // 调用Base的构造函数
     this.ensureSlash()
     window.addEventListener('hashchange', () => {
-      console.log('change url')
+      console.log('==========')
       this.transitionTo(this.getCurrentLocation())  // 改变当前的current.route值触发依赖
     })
   }
@@ -18,7 +18,6 @@ export class HashHistory extends Base {
       return true
     }
     // 不是的话需要手工保证一次  替换hash值
-    // console.log(path, 'path')
     changeUrl(path)
     return false
   }
@@ -28,6 +27,18 @@ export class HashHistory extends Base {
     this.transitionTo(targetRoute, () => {
       changeUrl(this.current.fullPath.substring(1))
     })
+  }
+
+  replaceState(location) {
+    const targetRoute = match(location, this.router.routes)
+
+    this.transitionTo(targetRoute, () => {
+      changeUrl(this.current.fullPath.substring(1), true)
+    })
+  }
+
+  go (n) {
+    window.history.go(n)  // 保留视图
   }
 
   getCurrentLocation () {

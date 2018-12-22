@@ -7,7 +7,6 @@ export class Dep {
     this.subs.push(Dep.target)
   }
   notify () {
-    console.log('--=====')
     this.subs.forEach(target => {
       target.update()
     })

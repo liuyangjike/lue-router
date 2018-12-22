@@ -1,5 +1,6 @@
 import {supportsPushState} from './util/push-state'
 import {HashHistory} from './history/hash'
+import {HTML5History} from './history/html5'
 import {observer} from './util/observer'
 import {Watcher} from './util/wathcer'
 
@@ -26,6 +27,14 @@ class Router {
   push(location) {
     this.history.push(location)
   }
+
+  replace (location) {
+    this,history.replace(location)
+  }
+
+  go (n) {
+    this.history.go(n)
+  }
   
   render () {
     let i 
@@ -40,7 +49,7 @@ class Router {
     observer.call(this, this.history.current)
     new Watcher(this.history.current, 'route', this.render.bind(this))
     console.log(history.getCurrentLocation())
-    history.transitionTo(history.getCurrentLocation())
+    history.transitionTo(history.getCurrentLocation())  // 改变
   }
 }
 

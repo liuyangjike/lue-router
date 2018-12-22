@@ -1,8 +1,8 @@
 
-
 var router = new Router({
   id: 'router-view',
-  mode: 'hash',
+  mode: 'history',
+  base: '/example/history',
   routes: [
     {
       path: '/',
@@ -10,10 +10,10 @@ var router = new Router({
       component: '<div>Home</div>',
       beforeEnter: (next) => {
         console.log('before enter home')
-        next()        
+        next()
       },
       afterEnter: (next) => {
-        console.log('start leave home')
+        console.log('enter home')
         next()
       },
       beforeLeave: (next) => {
@@ -41,15 +41,21 @@ var router = new Router({
     {
       path: '/foo',
       name: 'foo',
-      component: '<div>foo</div>',
+      component: '<div>Foo</div>'
     }
   ]
 })
 
 setTimeout(function () {
   router.push({name: 'bar', query: {name: 'bar'}})
+  console.log(router.route)
 }, 1000)
 
 setTimeout(function () {
   router.go(-1)
-}, 5000)
+}, 2000)
+
+function jump(path) {
+  router.push({path: path})
+}
+

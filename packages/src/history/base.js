@@ -26,7 +26,6 @@ export class Base {
   transitionTo (target, cb) {
     // 通过对比传入的routes获取匹配的targetRoute对象
     const targetRoute = match(target, this.router.routes)
-    console.log(targetRoute, 'color:red')
     this.confirmTransition(targetRoute, () => {
       this.current.route = targetRoute
       this.current.name = targetRoute.name
@@ -35,7 +34,6 @@ export class Base {
       this.current.fullPath = getFullPath(this.current)
       cb && cb()
     })
-    console.log(this.current)
   } 
 
   /**
