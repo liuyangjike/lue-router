@@ -1,4 +1,3 @@
-
 import {Base, match} from './base'
 
 export class HTML5History extends Base {
@@ -45,7 +44,6 @@ export class HTML5History extends Base {
 
 // 改变浏览器地址栏的地址
 function changeUrl (base, path, replace) {
-  console.log(base, path, '--===kjkjj')
   if (replace) {
     window.history.replaceState({}, '', (base + path).replace(/\/\//g, '/'))  // "//"变“/”
   } else {

@@ -48,7 +48,6 @@ class Router {
     const history = this.history
     observer.call(this, this.history.current)
     new Watcher(this.history.current, 'route', this.render.bind(this))
-    console.log(history.getCurrentLocation())
     history.transitionTo(history.getCurrentLocation())  // 改变
   }
 }
