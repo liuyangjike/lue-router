@@ -250,87 +250,7 @@ export function createMatcher (
     // no match
     return _createRoute(null, location)
   }
-
-  function redirect (
-    record: RouteRecord,
-    location: Location
-  ): Route {
-    const originalRedirect = record.redirect
-    let redirect = typeof originalRedirect === 'function'
-      ? originalRedirect(createRoute(record, location, null, router))
-      : originalRedirect
-
-    if (typeof redirect === 'string') {
-      redirect = { path: redirect }
-    }
-
-    if (!redirect || typeof redirect !== 'object') {
-      if (process.env.NODE_ENV !== 'production') {
-        warn(
-          false, `invalid redirect option: ${JSON.stringify(redirect)}`
-        )
-      }
-      return _createRoute(null, location)
-    }
-
-    const re: Object = redirect
-    const { name, path } = re
-    let { query, hash, params } = location
-    query = re.hasOwnProperty('query') ? re.query : query
-    hash = re.hasOwnProperty('hash') ? re.hash : hash
-    params = re.hasOwnProperty('params') ? re.params : params
-
-    if (name) {
-      // resolved named direct
-      const targetRecord = nameMap[name]
-      if (process.env.NODE_ENV !== 'production') {
-        assert(targetRecord, `redirect failed: named route "${name}" not found.`)
-      }
-      return match({
-        _normalized: true,
-        name,
-        query,
-        hash,
-        params
-      }, undefined, location)
-    } else if (path) {
-      // 1. resolve relative redirect
-      const rawPath = resolveRecordPath(path, record)
-      // 2. resolve params
-      const resolvedPath = fillParams(rawPath, params, `redirect route with path "${rawPath}"`)
-      // 3. rematch with existing query and hash
-      return match({
-        _normalized: true,
-        path: resolvedPath,
-        query,
-        hash
-      }, undefined, location)
-    } else {
-      if (process.env.NODE_ENV !== 'production') {
-        warn(false, `invalid redirect option: ${JSON.stringify(redirect)}`)
-      }
-      return _createRoute(null, location)
-    }
-  }
-
-  function alias (
-    record: RouteRecord,
-    location: Location,
-    matchAs: string
-  ): Route {
-    const aliasedPath = fillParams(matchAs, location.params, `aliased route with path "${matchAs}"`)
-    const aliasedMatch = match({
-      _normalized: true,
-      path: aliasedPath
-    })
-    if (aliasedMatch) {
-      const matched = aliasedMatch.matched
-      const aliasedRecord = matched[matched.length - 1]
-      location.params = aliasedMatch.params
-      return _createRoute(aliasedRecord, location)
-    }
-    return _createRoute(null, location)
-  }
+  // ...省略
 
   function _createRoute (
     record: ?RouteRecord,
@@ -352,3 +272,50 @@ export function createMatcher (
   }
 }
 ```
+
+`RoutedRecord`是每一个`route`对于的一条记录, `RoutedRecord`的`parent`来实现嵌套路由, 其实钱通过遍历`route.children`调用`addRouteRecord`实现父子关系
+### addRoutes
+`addRoutes` 方法的作用是动态添加路由配置
+```js
+function addRoutes (routes) {
+  createRouteMap(routes, pathList, pathMap, nameMap)
+}
+```
+其实就是`addRoute`之前闭包映射表, 通过`createRouteMap`直接修改路由映射表达到目的
+### match
+
+其实就是根据`record`和`location`找到对应的路径`Route`
+最终会调用 `createRoute` 方法
+```js
+// 生成一条路径
+export function createRoute (
+  record: ?RouteRecord,
+  location: Location,
+  redirectedFrom?: ?Location,
+  router?: VueRouter
+): Route {
+  const stringifyQuery = router && router.options.stringifyQuery
+
+  let query: any = location.query || {}
+  try {
+    query = clone(query)
+  } catch (e) {}
+
+  // 路径对象
+  const route: Route = {
+    name: location.name || (record && record.name),
+    meta: (record && record.meta) || {},
+    path: location.path || '/',
+    hash: location.hash || '',
+    query,
+    params: location.params || {},
+    fullPath: getFullPath(location, stringifyQuery),
+    matched: record ? formatMatch(record) : [] // 它记录了一条线路上的所有record
+  }
+  if (redirectedFrom) {
+    route.redirectedFrom = getFullPath(redirectedFrom, stringifyQuery)
+  }
+  return Object.freeze(route)
+}
+```
+注意`matched`, 通过`formatMatch`方法生成, 它记录了一条线路上的所有 `record`, `matched` 属性非常有用，它为之后渲染组件提供了依据
